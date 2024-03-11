@@ -54,11 +54,11 @@ fi
 
 echo
 echo "📦 Installing the packages..."
-if ! npm install -D vitest jsdom @vitejs/plugin-react @testing-library/react @testing-library/jest-dom @testing-library/user-event; then
+packages="vitest jsdom @vitejs/plugin-react @testing-library/react @testing-library/jest-dom @testing-library/user-event msw@latest"
+if ! npm install -D $packages; then
     echo "❌ Failed to install packages."
     exit 1
 fi
-
 echo
 echo "🔍 Checking if the '$tests_dir' directory exists..."
 if [ ! -d $tests_dir ]; then
