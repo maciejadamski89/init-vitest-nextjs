@@ -27,35 +27,29 @@ fi
 
 cd $dir || exit
 
-while true; do
-    read -p "Are you using TypeScript in your project? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]
-    then
-        next_config_file="next.config.mjs"
-        config_file="vitest.config.mts"
-        setup_file="__tests__/setup.ts"
-        break
-    elif [[ $REPLY =~ ^[Nn]$ ]]
-    then
-        next_config_file="next.config.mjs"
-        config_file="vitest.config.mjs"
-        setup_file="__tests__/setup.js"
-        break
-    else
-        echo "Invalid input. Please enter 'y' or 'n'."
-    fi
-done
+if [ -f "tsconfig.json" ]; then
+    echo "TypeScript configuration detected."
+    next_config_file="next.config.mjs"
+    config_file="vitest.config.mts"
+    setup_file="__tests__/setup.ts"
+else
+    next_config_file="next.config.mjs"
+    config_file="vitest.config.mjs"
+    setup_file="__tests__/setup.js"
+fi
+
 
 if [ ! -f $next_config_file ]; then
     echo "❌ The provided directory does not appear to be a Nextjs project (no $next_config_file file found)."
     exit 1
 fi
 
+declare -A e2e_pkg_map=( [1]="cypress" [2]="playwright" )
+
 while true; do
-    read -p "Which E2E testing package do you want to use? (cypress/playwright) " e2e_pkg
+    read -p "Which E2E testing package do you want to use? (1-Cypress | 2-Playwright) " e2e_pkg
     echo
-    if [[ $e2e_pkg == "cypress" ]]
+    if [[ ${e2e_pkg_map[$e2e_pkg]} == "cypress" ]]
     then
         echo "📦 Installing Cypress..."
         if ! npm install -D cypress; then
@@ -63,7 +57,7 @@ while true; do
             exit 1
         fi
         break
-    elif [[ $e2e_pkg == "playwright" ]]
+    elif [[ ${e2e_pkg_map[$e2e_pkg]} == "playwright" ]]
     then
         echo "📦 Installing Playwright..."
         if ! npm init playwright@latest; then
@@ -72,30 +66,11 @@ while true; do
         fi
         break
     else
-        echo "Invalid input. Please enter 'cypress' or 'playwright'."
+        echo "Invalid input. Please enter '1' for Cypress or '2' for Playwright."
     fi
 done
 
 packages="vitest jsdom @vitejs/plugin-react @testing-library/react @testing-library/jest-dom @testing-library/user-event msw@latest"
-
-while true; do
-    read -p "Which E2E testing package do you want to use? (cypress/playwright) " e2e_pkg
-    echo
-    if [[ $e2e_pkg == "cypress" ]]
-    then
-        echo "📦 Adding Cypress to the packages..."
-        packages+=" cypress"
-        break
-    elif [[ $e2e_pkg == "playwright" ]]
-    then
-        echo "📦 Adding Playwright to the packages..."
-        packages+=" playwright@latest"
-        break
-    else
-        echo "Invalid input. Please enter 'cypress' or 'playwright'."
-    fi
-done
-
 
 echo
 echo "📦 Installing the packages..."
