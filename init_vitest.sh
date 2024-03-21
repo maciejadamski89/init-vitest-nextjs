@@ -52,9 +52,53 @@ if [ ! -f $next_config_file ]; then
     exit 1
 fi
 
+while true; do
+    read -p "Which E2E testing package do you want to use? (cypress/playwright) " e2e_pkg
+    echo
+    if [[ $e2e_pkg == "cypress" ]]
+    then
+        echo "📦 Installing Cypress..."
+        if ! npm install -D cypress; then
+            echo "❌ Failed to install Cypress."
+            exit 1
+        fi
+        break
+    elif [[ $e2e_pkg == "playwright" ]]
+    then
+        echo "📦 Installing Playwright..."
+        if ! npm init playwright@latest; then
+            echo "❌ Failed to install Playwright."
+            exit 1
+        fi
+        break
+    else
+        echo "Invalid input. Please enter 'cypress' or 'playwright'."
+    fi
+done
+
+packages="vitest jsdom @vitejs/plugin-react @testing-library/react @testing-library/jest-dom @testing-library/user-event msw@latest"
+
+while true; do
+    read -p "Which E2E testing package do you want to use? (cypress/playwright) " e2e_pkg
+    echo
+    if [[ $e2e_pkg == "cypress" ]]
+    then
+        echo "📦 Adding Cypress to the packages..."
+        packages+=" cypress"
+        break
+    elif [[ $e2e_pkg == "playwright" ]]
+    then
+        echo "📦 Adding Playwright to the packages..."
+        packages+=" playwright@latest"
+        break
+    else
+        echo "Invalid input. Please enter 'cypress' or 'playwright'."
+    fi
+done
+
+
 echo
 echo "📦 Installing the packages..."
-packages="vitest jsdom @vitejs/plugin-react @testing-library/react @testing-library/jest-dom @testing-library/user-event msw@latest"
 if ! npm install -D $packages; then
     echo "❌ Failed to install packages."
     exit 1
